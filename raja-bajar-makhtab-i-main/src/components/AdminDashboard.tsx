@@ -59,8 +59,8 @@ export default function AdminDashboard({ session, onLogout }: AdminDashboardProp
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null)
   const [teacherForm, setTeacherForm] = useState({ name: '', email: '', contact: '', subjectsStr: '' })
 
-  // One-time versioned demo cleanup: remove the first 10 students and first 5 teachers (applies to already-cleaned installs)
-  const DEMO_CLEANUP_VERSION = 3
+  // One-time versioned demo cleanup: remove demo students and extra teachers (keeps first 4 main teachers)
+  const DEMO_CLEANUP_VERSION = 4
   const ensureDemoCleanup = () => {
     try {
       const prevVersion = Number(localStorage.getItem('demoCleanupVersion') || '0')
@@ -79,7 +79,11 @@ export default function AdminDashboard({ session, onLogout }: AdminDashboardProp
       const teachersData: Teacher[] = JSON.parse(localStorage.getItem('teachers') || '[]')
 
       const newStudents = studentsData.length > 10 ? studentsData.slice(10) : studentsData
-      const newTeachers = teachersData.length > 5 ? teachersData.slice(5) : teachersData
+      // Keep first 4 main teachers, remove only demo teachers after that
+      const newTeachers = teachersData.length > 4 ? [
+        ...teachersData.slice(0, 4),
+        ...teachersData.slice(9)
+      ] : teachersData
 
       localStorage.setItem('students', JSON.stringify(newStudents))
       localStorage.setItem('teachers', JSON.stringify(newTeachers))
